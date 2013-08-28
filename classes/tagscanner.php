@@ -117,7 +117,7 @@ class TagScanner {
         // set mood
         $file['mood'] = self::get_first_value('mood', $file_info_comments);
         // set musical key
-        $file['musical_key'] = self::get_first_value('initial_key', $file_info_comments);
+        $file['key'] = self::get_first_value('initial_key', $file_info_comments);
         // set energy
         $file['energy'] = self::get_first_value('comment', $file_info_comments);
         // set rating
