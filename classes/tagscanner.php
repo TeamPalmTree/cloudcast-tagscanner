@@ -23,28 +23,29 @@ class TagScanner {
         while (($file_title = readdir($directory_handle)) !== false)
         {
 
-            /////////////////////////
-            // GET FILE TITLE/NAME //
-            /////////////////////////
+            ////////////////////////////
+            // GET & VERIFY FILE NAME //
+            ////////////////////////////
 
             // get file name
             $file_name = $directory . $file_title;
-            // set system file title/name
-            $system_file_title = $file_title;
-            $system_file_name = $file_name;
-            // fix system file name
-            if (GETID3_OS_ISWINDOWS)
-                $file_name = utf8_encode($file_name);
+            // verify name falls in ascii range
+            if (preg_match('/[^\x20-\x7f]/', $file_name))
+            {
+                // log this non-ascii file name
+                Log::warning('TagScanner: Non-ASCII File Name Ignored: ' . $file_name);
+                continue;
+            }
 
             ///////////////////
             // VALIDATE FILE //
             ///////////////////
 
-            // see if this is a valid file
-            if (substr($system_file_title, 0, 1) == '.')
+            // make sure not . or ..
+            if (substr($file_title, 0, 1) == '.')
                 continue;
-            // verify file
-            if (!is_file($system_file_name))
+            // verify file is a file
+            if (!is_file($file_name))
                 continue;
 
             ////////////////////
@@ -54,7 +55,7 @@ class TagScanner {
             try
             {
                 // get file info
-                $file_info = $getID3->analyze($system_file_name);
+                $file_info = $getID3->analyze($file_name);
                 // move all tags to comments
                 getid3_lib::CopyTagsToComments($file_info);
                 // add to scanned files
