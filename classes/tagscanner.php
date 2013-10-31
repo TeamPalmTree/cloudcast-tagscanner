@@ -133,7 +133,17 @@ class TagScanner {
     {
 
         if (isset($array[$name]))
-            return $array[$name];
+        {
+            // get value
+            $value = $array[$name];
+            // verify not byte order mark
+            if ($value == "\xFF\xFE")
+                return null;
+            // success
+            return $value;
+        }
+
+        // check for required
         if (!$required)
             return null;
         throw new Exception($name . ' is a required');
@@ -144,7 +154,17 @@ class TagScanner {
     {
 
         if (isset($array[$name][0]))
-            return $array[$name][0];
+        {
+            // get value
+            $value = $array[$name][0];
+            // verify not byte order mark
+            if ($value == "\xFF\xFE")
+                return null;
+            // success
+            return $value;
+        }
+
+        // check for required
         if (!$required)
             return null;
         throw new Exception($name . ' is a required');
