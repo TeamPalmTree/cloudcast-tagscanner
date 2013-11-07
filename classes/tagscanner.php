@@ -54,12 +54,14 @@ class TagScanner {
 
             try
             {
+
                 // get file info
                 $file_info = $getID3->analyze($file_name);
                 // move all tags to comments
                 getid3_lib::CopyTagsToComments($file_info);
                 // add to scanned files
                 $scanned_files[$file_name] = self::get_file($file_info);
+
             }
             catch(Exception $e)
             {
