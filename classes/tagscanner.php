@@ -115,22 +115,36 @@ class TagScanner {
 
     }
 
-    public static function scan_files($files_directory, $file_modified_ons)
+    public static function scan_directory($directory, &$modified_ons)
+    {
+
+        // get instance
+        $getID3 = new getID3;
+        // create array for scanned file storage
+        $scanned_files = array();
+        // scan files and directories recursively
+        self::recursively_scan_directory($directory, $scanned_files, $modified_ons, $getID3);
+        // success
+        return $scanned_files;
+
+    }
+
+    public static function recursively_scan_directory($directory, &$scanned_files, &$modified_ons, $getID3)
     {
 
         ////////////////////
         // SCAN DIRECTORY //
         ////////////////////
 
-        // get instance
-        $getID3 = new getID3;
-        // keep track of scanned files
-        $scanned_files = array();
         // open directory
-        $files_directory_handle = opendir($files_directory);
+        $directory_handle = opendir($directory);
         // get each file
-        while (($file_title = readdir($files_directory_handle)) !== false)
+        while (($file_title = readdir($directory_handle)) !== false)
         {
+
+            /////////////////////
+            // VERIFY NOT DOTS //
+            /////////////////////
 
             // make sure not . or ..
             if (substr($file_title, 0, 1) == '.')
@@ -141,7 +155,7 @@ class TagScanner {
             ////////////////////////////
 
             // get file name
-            $file_name = $files_directory . $file_title;
+            $file_name = $directory . $file_title;
             // verify name falls in ascii range
             if (preg_match('/[^\x20-\x7f]/', $file_name))
             {
@@ -149,6 +163,25 @@ class TagScanner {
                 Log::warning('TagScanner: Non-ASCII File Name Ignored: ' . $file_name);
                 continue;
             }
+
+            /////////////////////////
+            // RECURSE DIRECTORIES //
+            /////////////////////////
+
+            // if this "file" is a dir, recurse
+            if (is_dir($file_name))
+            {
+                // get next directory to scan
+                $next_directory = $file_name . DIRECTORY_SEPARATOR;
+                // run scan
+                self::recursively_scan_directory($next_directory, $scanned_files, $modified_ons, $getID3);
+                // keep calm on move on
+                continue;
+            }
+
+            ///////////////////
+            // PROCESS FILES //
+            ///////////////////
 
             // verify file is a file
             if (!is_file($file_name))
@@ -192,9 +225,7 @@ class TagScanner {
         }
 
         // close directory
-        closedir($files_directory_handle);
-        // success
-        return $scanned_files;
+        closedir($directory_handle);
 
     }
 
