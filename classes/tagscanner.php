@@ -510,7 +510,7 @@ class TagScanner {
     protected static function get_key($file_info)
     {
 
-        // get the custom initial key value
+        // get the custom initial key value (WITH A SPACE)
         if (isset($file_info['initial key']))
             $initial_key = $file_info['initial key'];
         // next get standard key value
